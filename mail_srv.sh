@@ -118,7 +118,7 @@ UMask                   022
 UserID                  opendkim:opendkim
 EOT
 
-# 4.2_config_HTTPD=(virtual-hosts)
+# 4.2_config_HTTPD #
 rm -f /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/roundcubemail.conf
 
 echo "Listen 443" >> /etc/httpd/conf/httpd.conf
@@ -301,18 +301,10 @@ home_mailbox = Maildir/
 smtpd_banner = \$myhostname ESMTP Unknown
 disable_vrfy_command = yes
 
-#smtpd_client_restrictions =
-#    check_client_access hash:/etc/postfix/access
-#    reject_rbl_client zen.spamhaus.org
-#    reject_rbl_client bl.spamcop.net
-#    reject_rbl_client all.rbl.jp
-#    reject_non_fqdn_sender
-#    reject_unknown_sender_domain
-#    reject_invalid_hostname
+#smtpd_sender_restrictions =
+#        reject_rhsbl_sender zen.spamhaus.org
+#        reject_unknown_sender_domain
 
-smtpd_sender_restrictions =
-        reject_rhsbl_sender zen.spamhaus.org
-        reject_unknown_sender_domain
 # Dovecot SASL
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_local_domain = \$myhostname
@@ -330,10 +322,8 @@ smtpd_recipient_restrictions =
     check_policy_service unix:private/policy-spf
 
 ## CERTS
-#smtpd_tls_CAfile = /etc/httpd/ssl/$HOSTNAME_WEB.pem######
 smtpd_tls_cert_file = /etc/httpd/ssl/$HOSTNAME_WEB.crt
 smtpd_tls_key_file = /etc/httpd/ssl/$HOSTNAME_WEB.key
-#smtp_tls_CAfile = /etc/httpd/ssl/$HOSTNAME_WEB.pem
 
 smtp_tls_security_level = encrypt
 smtp_tls_loglevel = 1
@@ -353,7 +343,6 @@ milter_default_action = accept
 
 # Virtual Domain MySQL
 local_transport = local
-#virtual_transport = virtual
 virtual_transport = dovecot
 dovecot_destination_recipient_limit = 1
 virtual_mailbox_base = $POSTFIX_MAIL_LOCATION
@@ -416,7 +405,7 @@ smtp-amavis unix  -      -       n       -       2       smtp
 
 dovecot  unix    -       n       n       -       -       pipe
      flags=DRhu user=$POSTFIX_USER:$POSTFIX_USER argv=/usr/libexec/dovecot/deliver -f \${sender} -d \${recipient}
-#postfix-newer vers#      flags=DRhu user=$POSTFIX_USER:$POSTFIX_USER argv=/usr/libexec/dovecot/deliver -f \${sender} -d \${user}@\${nexthop}
+#postfix-newer version#      flags=DRhu user=$POSTFIX_USER:$POSTFIX_USER argv=/usr/libexec/dovecot/deliver -f \${sender} -d \${user}@\${nexthop}
 
 # Prevent sender address forgery with Sender Policy Framework(SPF); postfix checks SPF record on all incoming email#
 policy-spf unix -       n       n       -       0       spawn
