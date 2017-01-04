@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "MAINTAINER Eduard Zaharia"
-echo "email server 2017 postfix+dovecot+mysql_quota+amavis(sa+clam)
+echo "CentOS7 email server 2017 postfix+dovecot+mysql_quota+amavis(sa+clam)"
 
 # Update program links
 WEB_LATEST_POSTFIXADM='https://netix.dl.sourceforge.net/project/postfixadmin/postfixadmin/postfixadmin-3.0/postfixadmin-3.0.tar.gz'
@@ -79,7 +79,7 @@ sed -i "s|^\(\$CONF\['quota'\] =\).*$|\1 \'YES\';|" /var/www/html/postfixadmin/c
 
 # 4.1_create SSL-Certs ###
 mkdir -p /etc/httpd/ssl/
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/httpd/ssl/$HOSTNAME_WEB.key <<EOF -out /etc/httpd/ssl/$HOSTNAME_WEB.crt 
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/httpd/ssl/$HOSTNAME_WEB.key -out /etc/httpd/ssl/$HOSTNAME_WEB.crt <<EOF  
 RO
 Bucharest
 Bucharest
