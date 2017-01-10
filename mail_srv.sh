@@ -46,7 +46,7 @@ yum install -y mariadb mariadb-server mod_ssl mod_security ntp php php-imap spam
 # 9 packages to install
 yum install -y php-gd php-intl php-ldap php-mbstring php-mcrypt php-mysql php-xml roundcubemail opendkim
 # install_PostfixAdmin"
-curl -s $WEB_LATEST_POSTFIXADM | tar zxvf - -C /var/www/html/
+curl -s $WEB_LATEST_POSTFIXADM --insecure | tar zxvf - -C /var/www/html/
 mv /var/www/html/postfixadmin-*/ /var/www/html/postfixadmin
 chown apache:apache -R /var/www/html/postfixadmin
 
