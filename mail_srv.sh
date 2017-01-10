@@ -342,7 +342,7 @@ smtpd_relay_restrictions =
     reject_unauth_destination
 
 smtpd_client_restrictions =
-#    check_client_access hash:/etc/postfix/access
+    check_client_access hash:/etc/postfix/access
     reject_rbl_client zen.spamhaus.org
     reject_rbl_client bl.spamcop.net
     reject_rbl_client all.rbl.jp
@@ -462,7 +462,7 @@ smtp      unix  -       -       n       -       -       smtp
         -o smtp_bind_address=$SRV_MAIL_IP
 proxywrite unix -       -       n       -       1       proxymap
 EOT
-
+postmap /etc/postfix/access
 # conf_Dovecot#################
 cat <<EOT >> /etc/dovecot/local.conf
 ## dovecot.conf
