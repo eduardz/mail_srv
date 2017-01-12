@@ -34,8 +34,9 @@ groupadd -g $USR_ID $POSTFIX_USER
 useradd -g $USR_ID -u $USR_ID -d $POSTFIX_MAIL_LOCATION $POSTFIX_USER -s /sbin/nologin -c "virtual postfix user"
 
 # echo "1_install_POSTFIX+VDA-patched"
+# use patched postfix 
 yum remove -y postfix
-yum localinstall -y /home/ansible/postfix*.rpm
+yum localinstall -y /tmp/postfix*.rpm
 
 # _install_preparation
 yum install -y epel-release 
@@ -68,15 +69,19 @@ echo "\$rcmail_config['preview_pane'] = true;" >> /etc/roundcubemail/config.inc.
 echo "\$rcmail_config['imap_auth_type'] = 'LOGIN';" >> /etc/roundcubemail/config.inc.php
 # setup user/pass/db > roundcube
 sed -i "s|^\(\$config\['db_dsnw'\] =\).*$|\1 \'mysqli://${ROUNDCUBE_USER}:${ROUNDCUBE_PASS}@localhost/${ROUNDCUBE_DB}\';|" /etc/roundcubemail/config.inc.php
+#add vacation plugin to roundcube
+#sed -i "s|^\(\$config\['plugins'\] =\).*$|\1 array('vacation\',|" /etc/roundcubemail/config.inc.php
 
 # conf_PostfixAdmin-DB ###
 sed -i "s|^\(\$CONF\['configured'\] =\).*$|\1 \ true\;|" /var/www/html/postfixadmin/config.inc.php
 sed -i "s|^\(\$CONF\['database_user'\] =\).*$|\1 \'$POSTFIX_USER\';|" /var/www/html/postfixadmin/config.inc.php
 sed -i "s|^\(\$CONF\['database_password'\] =\).*$|\1 \'$POSTFIX_PASS\';|" /var/www/html/postfixadmin/config.inc.php
 sed -i "s|^\(\$CONF\['database_name'\] =\).*$|\1 \'$POSTFIX_SQL_DB\';|" /var/www/html/postfixadmin/config.inc.php
-# user mailbox set quota=1024MB
+# user mailbox quota=1024MB
 sed -i "s|^\(\$CONF\['maxquota'\] =\).*$|\1 \'1024\';|" /var/www/html/postfixadmin/config.inc.php
 sed -i "s|^\(\$CONF\['quota'\] =\).*$|\1 \'YES\';|" /var/www/html/postfixadmin/config.inc.php
+# domain quota (default enabled)
+#sed -i "s|^\(\$CONF\['domain_quota'\] =\).*$|\1 \'NO\';|" /var/www/html/postfixadmin/config.inc.php
 
 # _create SSL-Certs ###
 mkdir -p /etc/httpd/ssl/
@@ -99,7 +104,7 @@ echo "*@$HOSTNAME_WEB dkim_selector._domainkey.$HOSTNAME_WEB" >> /etc/opendkim/S
 echo "*dkim_selector._domainkey.$HOSTNAME_WEB $HOSTNAME_WEB:dkim_selector:/etc/opendkim/keys/$HOSTNAME_WEB/dkim_selector" >> /etc/opendkim/KeyTable
 echo "localhost" >> /etc/opendkim/TrustedHosts
 echo "$HOSTNAME_WEB" >> /etc/opendkim/TrustedHosts
-echo "SRV_MAIL_IP" >> /etc/opendkim/TrustedHosts
+echo "$SRV_MAIL_IP" >> /etc/opendkim/TrustedHosts
 #
 cat <<EOT > /etc/opendkim.conf
 ## opendkim.conf -- configuration file for OpenDKIM filter
@@ -124,8 +129,8 @@ EOT
 
 # _config_HTTPD=(vh_roundcube+vh_postfixadmin)
 rm -f /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/roundcubemail.conf
-
 echo "Listen 443" >> /etc/httpd/conf/httpd.conf
+echo "ServerName HOSTNAME_WEB" >> /etc/httpd/conf/httpd.conf
 cat <<EOT >> /etc/httpd/conf.d/vh1_postfix-roundcube.conf
 <VirtualHost *:80>
     ServerName $VH_ROUNCUBE
@@ -258,7 +263,7 @@ EOT
 cat <<EOT >> /etc/dovecot/dovecot-sql.conf.ext
 driver = mysql
 connect = host=localhost dbname=$POSTFIX_SQL_DB user=$POSTFIX_USER password=$POSTFIX_PASS
-default_pass_scheme = SHA512-CRYPT
+default_pass_scheme = MD5-CRYPT
 
 password_query = SELECT password FROM mailbox WHERE username = '%u' AND active = '1'
 
@@ -286,10 +291,12 @@ map {
   value_field = messages
 }
 EOT
-# remove all config
+
+### included in /etc/dovecot/local.conf
 cat <<EOT > /etc/dovecot/conf.d/10-auth.conf
 !include auth-sql.conf.ext
 EOT
+
 ### PostFix_MAIN.CF #####################################
 cat <<EOT > /etc/postfix/main.cf
 myhostname = $HOSTNAME_WEB
@@ -325,8 +332,6 @@ smtpd_tls_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers = high
 smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5
-smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
-smtpd_tls_session_cache_timeout = 3600s
 
 smtpd_sasl_type = dovecot
 #smtpd_sasl_path = private/auth
@@ -391,13 +396,14 @@ virtual_trash_count = yes
 content_filter=smtp-amavis:[127.0.0.1]:10024
 receive_override_options = no_address_mappings
 EOT
+
 #
 cat <<EOT > /etc/postfix/master.cf
 smtp      inet  n       -       n       -       -       smtpd
 submission inet n       -       n       -       -       smtpd
 # SASL authentication with dovecot
     -o smtpd_tls_security_level=encrypt
-#    -o smtpd_sasl_auth_enable=yes
+    -o smtpd_sasl_auth_enable=yes
     -o smtpd_sasl_type=dovecot
     -o smtpd_sasl_path=private/auth
     -o smtpd_sasl_security_options=noanonymous
@@ -441,6 +447,8 @@ smtp-amavis unix  -      -       n       -       2       smtp
 
 dovecot  unix    -       n       n       -       -       pipe
      flags=DRhu user=$POSTFIX_USER:$POSTFIX_USER argv=/usr/libexec/dovecot/deliver -f \${sender} -d \${recipient}
+# newer postfix vers
+#      flags=DRhu user=$POSTFIX_USER:$POSTFIX_USER argv=/usr/libexec/dovecot/deliver -f \${sender} -d \${user}@\${nexthop}
 
 # Prevent sender address forgery with Sender Policy Framework(SPF); postfix checks SPF record on all incoming email#
 policy-spf unix -       n       n       -       0       spawn
@@ -462,6 +470,7 @@ smtp      unix  -       -       n       -       -       smtp
         -o smtp_bind_address=$SRV_MAIL_IP
 proxywrite unix -       -       n       -       1       proxymap
 EOT
+#
 postmap /etc/postfix/access
 # conf_Dovecot#################
 cat <<EOT >> /etc/dovecot/local.conf
@@ -558,6 +567,7 @@ ssl_key = </etc/httpd/ssl/$HOSTNAME_WEB.key
 ssl_ca = </etc/httpd/ssl/$HOSTNAME_WEB.key
 ssl_verify_client_cert = yes
 ssl_protocols = !SSLv2 !SSLv3
+ssl = required
 
 ##15-lda.conf
 protocol lda {
@@ -610,7 +620,18 @@ dict {
 plugin {
     quota2 = dict:User quota::proxy::quota
     quota = dict:Domain quota:%d:proxy::quota
+    quota_warning = storage=95%% quota-warning 95 %u
+    quota_warning2 = storage=80%% quota-warning 80 %u
 }
+
+#service quota-warning {
+#  executable = script $POSTFIX_MAIL_LOCATION/quota-warning.sh
+  # use some unprivileged user for executing the quota warnings
+#  user = $POSTFIX_USER
+#  unix_listener quota-warning {
+#      user = $POSTFIX_USER
+#  }
+#}
 
 ## 90-sieve.conf
 plugin {
@@ -622,6 +643,7 @@ plugin {
   sieve_global_path = /etc/dovecot/sieve/default.sieve
 }
 EOT
+#
 
 # _conf_AMAVISD-New
 sed -i "s|^\(\$mydomain\ =\).*$|\1 \'localhost\';|" /etc/amavisd/amavisd.conf
@@ -678,8 +700,8 @@ mysql -u root -p$SQL_ROOT_PASS $ROUNDCUBE_DB < /usr/share/roundcubemail/SQL/mysq
 echo "
 installed Postfix_VDA+Dovecot+Amavisd(spamaassassin+clam)+MariaDB(MySQL)+Apache2.4+OpenDKIM+Apache-mod_security+policy-SPF+PostfixAdmin
 ##
-- configure pass postfixadmin in config + create admin
+- configure pass postfixadmin in config + create admin user
 - secure postfixadmin
-- setup iptables, dkim add DNS text
+- setup iptables, dkim to add DNS text
 - "
 
