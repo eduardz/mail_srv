@@ -667,9 +667,11 @@ echo > /etc/sysconfig/freshclam
 systemctl start postfix dovecot httpd mariadb amavisd clamd@amavisd spamassassin opendkim
 
 ### _Config MySQL_secure_install#
-# ENTER 2 setup password#
+# needs an ENTER check pasted script (setup password)
 mysql_secure_installation <<EOF
+#
 
+#
 y
 $SQL_ROOT_PASS
 $SQL_ROOT_PASS
