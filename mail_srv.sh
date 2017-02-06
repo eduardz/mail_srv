@@ -154,7 +154,7 @@ EOT
 # _config_HTTPD=(vh_roundcube+vh_postfixadmin)  ###
 rm -f /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/roundcubemail.conf /etc/httpd/conf.d/autoindex.conf
 echo "Listen 443" >> /etc/httpd/conf/httpd.conf
-echo "ServerName HOSTNAME_WEB" >> /etc/httpd/conf/httpd.conf
+echo "ServerName $HOSTNAME_WEB" >> /etc/httpd/conf/httpd.conf
 cat <<EOT >> /etc/httpd/conf.d/vh1_postfix-roundcube.conf
 <VirtualHost *:80>
     ServerName $VH_ROUNCUBE
