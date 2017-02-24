@@ -1,14 +1,17 @@
 # mail_srv
 config-script
-"postfix+dovecot+mariadb(Quota)+amavisd(sa+clam)"
+postfix_VDA+dovecot+mariadb(Quota)+amavisd(spamassasin+clam)
 
-* First patch Postfix with VDA_patch, from here:
+* Configure first LVM and mount LogicalVolume in home folder for postfix user
+
+* Patch Postfix with VDA_patch, from here:
 http://vda.sourceforge.net/
 
+Run mail script 
 1)
 installed 
-	- postfix_VDA manual-update??? 
-	- postfixadmin (web -> update???)
+	- postfix_VDA manual-update 
+	- postfixadmin (web -> update)
 	- Dovecot -yum update
 	- MariaDB (MySQL) -yum update
 	- roundcube -yum update
@@ -21,8 +24,8 @@ installed
 	- mod_ssl -yum update (certificate creation)
 
 2)
-setat DKIM + postfix 	
-  -DMARC add TXT DNS record
+setat DKIM  
+  -DMARC to add TXT DNS record
  
  3)
 Apache 2.4 latest - settings
@@ -33,6 +36,7 @@ mod_security = apache protection: protect from sql injection
 	-virtual_host = postfixadmin-$ 
 			apache redirect *80 -> 443
 scripted SSL certificates = /etc/httpd/ssl/*
+- support for lets encrypt
 
 4)
 - scripted roundcube install + config + mysql_DB + SQL entry
@@ -51,31 +55,19 @@ postfix:::setup
 6)
 dovecot:::setup
 + /etc/dovecot/local.conf in care sunt setari incluse pt:
-		include 10-auth.conf
-		include 10-mail.conf
-		include 10-master.conf
-		include 10-ssl.conf
-		include 15-lda.conf
-		include 20-imap.conf
-		include 20-lmtp.conf
-		include 20-managesieve.conf
-		include 20-pop3.conf
-		include 90-plugin.conf
-		include 90-sieve.conf
 + /etc/dovecot/dovecot-sql.conf.ext
 + /etc/dovecot/dovecot-dict-quota.conf.ext
 + /etc/dovecot/conf.d/10-auth.conf 
- ...
+ + managesieve -> vacancy setup in rouncube
  
  
-^ test VDA patch
-''postconf | grep virtual_maildir_''
+
 
 ... to do ...
-plugin rouncube -vacation?
+
 dovecot quota_warning
 iptables or firewalld
 selinux?
-fail2ban?
+
 
 
