@@ -63,6 +63,8 @@ cp /etc/roundcubemail/config.inc.php.sample /etc/roundcubemail/config.inc.php
 chown root:apache /etc/roundcubemail/config.inc.php
 echo "\$rcmail_config['force_https'] = true;" >> /etc/roundcubemail/config.inc.php
 echo "\$rcmail_config['preview_pane'] = true;" >> /etc/roundcubemail/config.inc.php
+echo "\$config['login_rate_limit'] = 3;" >> /etc/roundcubemail/config.inc.php
+echo "\$rcmail_config['timezone'] = 'auto'; " >> /etc/roundcubemail/config.inc.php
 # plain password compatible with crypt field#
 echo "\$rcmail_config['imap_auth_type'] = 'LOGIN';" >> /etc/roundcubemail/config.inc.php
 # setup user/pass/db > roundcube
