@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# variabile
+# variabile / change SSH port
 SSH_PORT=22
 ###
 
@@ -23,7 +23,6 @@ iptables -I INPUT 2 -p icmp --icmp-type echo-request -j ACCEPT
 
 # allow ssh
 iptables -A INPUT -p tcp --dport $SSH_PORT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "SSH"
-iptables -A OUTPUT -p tcp --dport $SSH_PORT -m state --state ESTABLISHED -j ACCEPT -m comment --comment "SSH"
 
 # allow stuff
 iptables -A INPUT -p tcp --dport 24 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "lmtp"
@@ -41,6 +40,7 @@ iptables -A INPUT -p tcp --dport 8891 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A INPUT -p tcp --dport 4190 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "dovecot-sieve"
 iptables -A INPUT -p tcp --dport 25357 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "quota-status"
 
+# block ping
 #iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
 #iptables -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 
@@ -49,4 +49,4 @@ iptables -A FORWARD -j DROP
 
 service iptables save
 systemctl restart iptables
-#systemctl enable iptables
+systemctl enable iptables
