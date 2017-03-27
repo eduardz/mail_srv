@@ -34,7 +34,7 @@ useradd -g $USR_ID -u $USR_ID -d $POSTFIX_MAIL_LOCATION $POSTFIX_USER -s /sbin/n
 
 # install_POSTFIX+VDA-patched
 yum remove -y postfix
-yum localinstall -y /home/ansible/postfix*.rpm
+yum localinstall -y /root/postfix*.rpm
 
 # _install_preparation
 yum install -y epel-release 
