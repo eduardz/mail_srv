@@ -399,8 +399,8 @@ smtpd_recipient_restrictions =
 #    check_policy_service unix:private/policy-spf
 
 # cache sessions
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:\${data_directory}/smtp_scache
+smtpd_tls_session_cache_database = btree:\${data_directory}/smtpd_scache
 
 # Virtual Domain MySQL
 local_transport = local
