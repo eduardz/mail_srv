@@ -4,7 +4,7 @@ sleep 1
 
 ## <Variabile de schimbat> ###
 # Update program links
-WEB_LATEST_POSTFIXADM='https://netix.dl.sourceforge.net/project/postfixadmin/postfixadmin/postfixadmin-3.0/postfixadmin-3.0.tar.gz'
+WEB_LATEST_POSTFIXADM='https://netix.dl.sourceforge.net/project/postfixadmin/postfixadmin/postfixadmin-3.0.2/postfixadmin-3.0.2.tar.gz'
 #
 SRV_MAIL_IP=192.168.2.162
 USR_ID=30791
