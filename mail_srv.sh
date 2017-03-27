@@ -416,10 +416,10 @@ virtual_uid_maps = static:$USR_ID
 virtual_gid_maps = static:$USR_ID
 virtual_minimum_uid = $USR_ID
 
-# DKIM support for postfix
-smtpd_milters = inet:127.0.0.1:8891
-non_smtpd_milters = \$smtpd_milters
-milter_default_action = accept
+# DKIM support for postfix #uncomment after DNS TXT entry for dkim
+#smtpd_milters = inet:127.0.0.1:8891
+#non_smtpd_milters = \$smtpd_milters
+#milter_default_action = accept
 
 # Virtual delivery Postfix_VDA patched
 virtual_maildir_extended = yes
