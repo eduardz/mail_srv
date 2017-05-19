@@ -176,7 +176,7 @@ cat <<EOT >> /etc/httpd/conf.d/vh1_postfix-roundcube.conf
 # Self Signed Certificate
     SSLCertificateFile /etc/httpd/ssl/$HOSTNAME_WEB.crt
     SSLCertificateKeyFile /etc/httpd/ssl/$HOSTNAME_WEB.key
-    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:!DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
     SSLHonorCipherOrder on
 #    SSLCertificateFile /etc/letsencrypt/live/$HOSTNAME_WEB/cert.pem
 #    SSLCertificateKeyFile /etc/letsencrypt/live/$HOSTNAME_WEB/privkey.pem
@@ -225,28 +225,21 @@ cat <<EOT >> /etc/httpd/conf.d/vh2_postfix-postfixadmin.conf
     SSLCertificateFile /etc/httpd/ssl/$HOSTNAME_WEB.crt
     SSLCertificateKeyFile /etc/httpd/ssl/$HOSTNAME_WEB.key
     SSLCipherSuite HIGH:!MEDIUM:!aNULL:!MD5:!RC4
-<Directory /var/www/html/postfixadmin/>
-    <IfModule mod_authz_core.c>
-        Require all granted
-    </IfModule>
-# disable /setup.php
-#    <Files setup.php>
+
+# Restrict access
+    <Directory /var/www/html/postfixadmin/>
+#    Require all denied
+#    Require ip 1.1.1.1
+#    Require ip 2.2.2.0/24
+# - setup.php = restrict after setup
+    <Files setup.php>
 #        Require all denied
-#    </Files>
-</Directory>
+    </Files>
+    </Directory>
     Options -FollowSymLinks
     Header set X-XSS-Protection "1; mode=block"
-# Apache user/pass protection
-#    <Location />
-#        Order allow,deny
-#        Allow from all
-#        AuthType Basic
-#        AuthName "Restricted Files"
-#        AuthBasicProvider file
-#        AuthUserFile /etc/httpd/conf/.htpasswd
-#        Require user euroweb
-#    </Location>
 </VirtualHost>
+
 EOT
 
 ### configure PostFix/Dovecot MAPS ##########
