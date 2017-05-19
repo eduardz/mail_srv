@@ -161,7 +161,7 @@ cat <<EOT >> /etc/httpd/conf.d/vh1_postfix-roundcube.conf
 <VirtualHost *:80>
     ServerName $VH_ROUNCUBE
     DocumentRoot /usr/share/roundcubemail
-    Redirect / https://$VH_ROUNCUBE
+    Redirect / https://$VH_ROUNCUBE/
 </VirtualHost>
 <VirtualHost *:443>
     ServerName $VH_ROUNCUBE
@@ -213,7 +213,7 @@ cat <<EOT >> /etc/httpd/conf.d/vh2_postfix-postfixadmin.conf
 <VirtualHost *:80>
     ServerName $VH_POSTFIXADMIN
     DocumentRoot /var/www/html/postfixadmin
-    Redirect / https://$VH_POSTFIXADMIN
+    Redirect / https://$VH_POSTFIXADMIN/
 </VirtualHost>
 <VirtualHost *:443>
     ServerName $VH_POSTFIXADMIN
