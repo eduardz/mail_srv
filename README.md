@@ -60,14 +60,11 @@ dovecot:::setup
 + /etc/dovecot/conf.d/10-auth.conf 
  + managesieve -> vacancy setup in rouncube
  
+  # Secure iptables
+ input+forward - drop
+ output accept
  
-
-
-... to do ...
-
-dovecot quota_warning
-iptables or firewalld
-selinux?
-
-
+ # Secure Apache
+ mod_sec + mod_sec_crs + redhat-lsb-submod-sec
+ added whitelist id's for roundcube to function
 
