@@ -19,11 +19,11 @@ ROUNDCUBE_USER='ro0und'
 ROUNDCUBE_PASS='change_rouncube_pawss'
 ROUNDCUBE_DB='round_lDB'
 #
-HOSTNAME_WEB=mail.euroweb.ro
-VH_ROUNCUBE='roundcube.euroweb.ro'
-VH_POSTFIXADMIN='postfix.euroweb.ro'
-SRV_ALIAS='webmail.euroweb.ro'
-MAIL_ADMIN='dev@'
+HOSTNAME_WEB=mail.example.com
+VH_ROUNCUBE='roundcube.example.com'
+VH_POSTFIXADMIN='postfix.eexample.com'
+SRV_ALIAS='webmail.example.com'
+MAIL_ADMIN='dev@example.com'
 
 ## </Variabile de schimbat> ###
 
@@ -45,7 +45,7 @@ yum install -y mariadb mariadb-server mod_ssl ntp php php-imap php-mysql php-xml
 # 8 packages to install
 yum install -y opendkim php-gd php-intl php-ldap php-mbstring php-mcrypt roundcubemail spamassassin
 # 3 packages to install #security test last
-#yum install -y mod_security mod_security_crs redhat-lsb-submod-security 
+yum install -y mod_security mod_security_crs redhat-lsb-submod-security 
 ## install_PostfixAdmin #
 curl -s $WEB_LATEST_POSTFIXADM --insecure | tar zxvf - -C /var/www/html/
 mv /var/www/html/postfixadmin-*/ /var/www/html/postfixadmin
@@ -196,7 +196,7 @@ cat <<EOT >> /etc/httpd/conf.d/vh1_postfix-roundcube.conf
     Order Allow,Deny
     Deny from all
 </Directory>
-<Directory /usr/share/roundcubemail/plugins/enigma/home/>
+<Directory /usr/share/roundcubemail/plugins/enigma/>
     Order Allow,Deny
     Deny from all
 </Directory>
@@ -231,15 +231,24 @@ cat <<EOT >> /etc/httpd/conf.d/vh2_postfix-postfixadmin.conf
 #    Require all denied
 #    Require ip 1.1.1.1
 #    Require ip 2.2.2.0/24
-# - setup.php = restrict after setup
-    <Files setup.php>
+
+## setup.php = restrict after setup
+#    <Files setup.php>
 #        Require all denied
-    </Files>
+#    </Files>
     </Directory>
     Options -FollowSymLinks
     Header set X-XSS-Protection "1; mode=block"
 </VirtualHost>
+EOT
 
+cat <<EOT >> /etc/httpd/modsecurity.d/whitelist.conf
+# White List in mod_sec for roundcube reply/forward/import messages
+<LocationMatch .*>
+<IfModule mod_security2.c>
+    SecRuleRemoveById 981319,950901,981245,981243,960024,950019,981231,981173,960915,200003,981318
+</IfModule>
+</LocationMatch>
 EOT
 
 ### configure PostFix/Dovecot MAPS ##########
@@ -420,6 +429,9 @@ virtual_mailbox_limit_maps = mysql:/etc/postfix/mysql_virtual_mailbox_limit_maps
 virtual_mailbox_limit_override = yes
 virtual_overquota_bounce = no
 virtual_trash_count = yes
+
+# limit email sending rate
+smtp_destination_rate_delay = 1s
 
 # Amavisd-new
 content_filter=smtp-amavis:[127.0.0.1]:10024
