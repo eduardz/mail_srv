@@ -25,12 +25,11 @@ iptables -I INPUT 2 -p icmp --icmp-type echo-request -j ACCEPT
 iptables -A INPUT -p tcp --dport $SSH_PORT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "SSH"
 
 # allow stuff
-iptables -A INPUT -p tcp --dport 24 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "lmtp"
 iptables -A INPUT -p tcp --dport 25 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "smtp"
 iptables -A INPUT -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "http"
 iptables -A INPUT -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "https"
 iptables -A INPUT -p tcp --dport 465 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "smtps"
-iptables -A INPUT -p tcp --dport 587 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "smtp-msa"
+iptables -A INPUT -p tcp --dport 587 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "smtp"
 iptables -A INPUT -p tcp --dport 110 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "pop3"
 iptables -A INPUT -p tcp --dport 143 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "imap"
 iptables -A INPUT -p tcp --dport 993 -m state --state NEW,ESTABLISHED -j ACCEPT -m comment --comment "imaps"
